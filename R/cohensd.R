@@ -3,19 +3,22 @@
 
 calcCohensD <- function(vals, freq, grps,
                         contrast,
+                        hedges.g=FALSE,
                         cohens.d.sigma=FALSE,
-                        glass.control="") {
+                        glass.control="",
+                        akp.robust.d=FALSE) {
   ## Compute Cohen's d/Hedge's g or optionally Cohen's Sigma D for the
   ## mean of one or more groups
   ## 
   ## Args:
   ##   @param vals a numeric vector of values
   ##   @param freq a frequency vector of length equal to the number of records
-  ##     in 'dat' indicating how many times an observation should be drawn
+  ##     in 'data' indicating how many times an observation should be drawn
   ##     from each sample.
   ##   @param grps a grouping vector of the same length as 'vals'
   ##   @param contrast a named, numeric vector of contrast weights.
   ##     The names must match the values in 'grps'
+  ##   @param hedges.g Whether to make the hedges.g adjustment to cohens.d
   ##   @param cohens.d.sigma Whether to use the population standard
   ##     deviation instead of the sample standard deviation
   ##   @param glass.control a character vector of length 1 specifying the
@@ -34,32 +37,46 @@ calcCohensD <- function(vals, freq, grps,
   ## group.
   means = ss = numeric()
   glass.sd = NULL
+  dof = NULL
   for (nm in grp.nms) {
     this.grp.idx = grp.idx[[nm]]
     sample.vals  = rep(vals[this.grp.idx], times=freq[this.grp.idx])
-    means[nm]    = mean(sample.vals)
-    ss[nm]       = sum((sample.vals - means[nm])^2)
-
+    
+    if (akp.robust.d) {
+      means[nm] = mean(sample.vals, trim=0.2)
+      n = length(sample.vals)
+      g = floor(0.2*n) # Trim from bottom and top
+      tdat = sort(sample.vals)[(g+1):(n-g)] # the trimmed data             
+      wdat = c(rep(min(tdat),g), tdat, rep(max(tdat),g))  
+      ss[nm] = sum((wdat - mean(wdat))^2)/0.642^2
+    } else {
+      means[nm] = mean(sample.vals)
+      ss[nm]    = sum((sample.vals - means[nm])^2)
+    }
+    
     if (identical(glass.control, nm)) {
       if (cohens.d.sigma) {
-        denom = length(sample.vals)
+        dof = length(sample.vals)
       } else {
-        denom = length(sample.vals) - 1
+        dof = length(sample.vals) - 1
       }
-      glass.sd = sqrt(ss[nm] / denom)
+      glass.sd = sqrt(ss[nm] / dof)
     }
   }
 
   ## Calculate the standard deviation.
-  if (!is.null(glass.sd)) {
-    sd.hat = glass.sd
-  } else {
-    num.grps     = length(grp.idx)
-    sd.hat.denom = if (cohens.d.sigma) length(vals) else length(vals) - num.grps
-    sd.hat       = sqrt(sum(ss) / sd.hat.denom)
+  num.grps     = length(grp.idx)
+  if (is.null(dof)) { # dof == NULL when glass.control specified
+    dof = if (cohens.d.sigma) length(vals) else length(vals) - num.grps
   }
+  
+  sd.hat = if (!is.null(glass.sd)) glass.sd else sqrt(sum(ss) / dof)
 
   res = sum(contrast[grp.nms] * means) / sd.hat
   res = as.vector(res) # remove names from 'means'
+  if (hedges.g) {
+    hadj = gamma(dof/2)/( sqrt(dof/2)*gamma((dof-1)/2) )
+    res  = hadj * res
+  }
   return(res)
 }
