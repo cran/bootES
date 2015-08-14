@@ -66,6 +66,14 @@ test.bootES.input <- function() {
   res <- try(bootES(gender, block.col="Gender", group.col="Condition",
                     contrast=c(A=1, B=-0.5, C=-0.5)), 
              silent=TRUE)
+  
+  ## Assert that user cannot pass '...' arguments that are not valid 'boot'
+  ## arguments.
+  res <- try(bootES(gender, R=10, data.col="Meas1", block.col="Condition", 
+                    slop.levels=letters[1:3]), 
+             silent=TRUE)
+  checkTrue(grepl('invalid argument.*slop\\.levels', res[1], ignore.case=TRUE))
+
 }
 
 test.bootES.univariate <- function() {
@@ -117,7 +125,17 @@ test.bootES.univariate <- function() {
   rMean.res = bootES(threeGps, R=250, data.col="scores",
     effect.type="hedges.g")
   checkEquals(truth, rMean.res$t0)
-    
+  
+  ## Test: 'akpRobustD' through 'bootES'
+  dat = read.csv(system.file("robust_d_test.csv", package="bootES"))
+  truth     = 0.190912
+  set.seed(1)
+  akp.res = bootES(dat, R=250, data.col="diff", effect.type="akp.robust.d")
+  checkEquals(truth, akp.res$t0, tol=1e-4)
+  
+  set.seed(1)
+  akp.res.1 = bootES(dat[["diff"]], R=250, effect.type="akp.robust.d")
+  checkEquals(truth, akp.res.1$t0, tol=1e-4)
 }
 
 test.bootES.multivariate <- function() {
@@ -240,13 +258,36 @@ test.bootES.contrast <- function() {
                               "female-C" = 50, "male-C" = 50))
   checkEquals(truth, test$t0, tol=1e-3)
 
-  ## Assert: Test the blocking column
+  ## Assert: Test the blocking column w/ contrasts that must be scaled
   set.seed(1)
   truth = 46.71499
   test = bootES(gender, R=250, data.col="Meas1",
     block.col="GenderByCond", group.col="Condition",
     contrast=c(A=-40, B=-10, C=50))
   checkEquals(truth, test$t0, tol=1e-3)
+  
+  ## Assert: Test the blocking column w/ contrasts that don't need to
+  ## be scaled
+  set.seed(1)
+  truth = 36.783
+  test <- bootES(gender, R=250, data.col="Meas1", group.col="Gender",
+                 contrast=c("female"=-1, "male"=1), block.col="Condition")
+  checkEquals(truth, test$t0, tol=1e-3)
+  cond_means <- with(gender, tapply(Meas1, GenderByCond, mean))
+  
+  ## Assert: Test that means are unweighted
+  set.seed(1005)
+  # means <- with(gender, tapply(Meas1, Condition, mean))
+  # truth <- with(gender, mean(tapply(Meas1, Condition, mean)))
+  truth <- 266.944 # unweighted mean 
+  test <- bootES(gender, R=250, data.col="Meas1", block.col="Condition")
+  checkEquals(truth, test$t0, tol=1e-3)
+#   wt_mean <- local({
+#     means <- with(gender, tapply(Meas1, GenderByCond, mean))
+#     counts <- with(gender, tapply(Meas1, GenderByCond, length))
+#     sum(means * counts / nrow(gender))
+#   })
+
 }
 
 test.bootES.apk.robust.d <- function() {
