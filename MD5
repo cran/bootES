@@ -1,15 +1,15 @@
-95a0b3b9d55c030283265fc203c9caa9 *DESCRIPTION
+789030a2b9c00ee1b55ccf45b093a808 *DESCRIPTION
 36b5d35883eb193d49264b47b9b4c8ac *NAMESPACE
 695d31598199a3d4c8a9d4b4e9cd3ebd *NEWS.md
 00c3e8d4602b68d2a00ca44d37f2343c *R/bootES.R
 fd6902401bdb88d63a8063833b2bca1f *R/cohensd.R
 a1df118b3b30ac5736fa9d509893fbac *R/cor.R
 8d0899319c8b21ec2283f41e8b5a401d *R/misc.R
-8fc986d6c646fc81297b6c5c6e50f5e5 *R/pearsonsr.R
+290e22cead9eda871cea098d9d20fe1b *R/pearsonsr.R
 d8c4610512c1b369304fff731949a98f *R/slope.R
 cb377eaf7a381336c932c07289172619 *R/univariate.R
 161ff65477e02b88e30aea360f366269 *R/unstandardizedMean.R
-700c388352fd40b099fab60cf808e63b *README.md
+6d76b956f7ffe12ffa22a25a6a18cf45 *README.md
 7a995212020adcd6b71cb7394d97d8ca *inst/commands.txt
 bb3e30b22deab44ddd75ef6fb1d06e45 *inst/example.csv
 d5549307f40c58b9678017482f2a6a28 *inst/monte_carlo.R
@@ -19,6 +19,6 @@ d5549307f40c58b9678017482f2a6a28 *inst/monte_carlo.R
 eea62ad8e826230164bd1cf9d5a1ce95 *tests/testthat/test_akpRobustD.R
 ab8058f743021750d29e9aa988d3a027 *tests/testthat/test_bootES.R
 50fe11e7afa1e4c55aa2023874d4d16f *tests/testthat/test_calcCohensD.R
-b17398fb4d769f857ad6e8e253781439 *tests/testthat/test_calcPearsonsR.R
+cacde9a81d1941ded0c51961b32c03f9 *tests/testthat/test_calcPearsonsR.R
 511b7d98038739a3e0b5120399157592 *tests/testthat/test_determineStat.R
 db87a36acde4a91206a8e1a685c8cb74 *tests/testthat/test_scaleLambdasBySide.R

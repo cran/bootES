@@ -35,7 +35,7 @@ Calculate effect sizes for:
 - differences between correlations
 
 A pre-print version of our article, _bootES:_ An R Package for Bootstrap
-Confidence Intervals on Effect Sizes, is available [here](https://web.williams.edu/Psychology/Faculty/Kirby/bootes-kirby-gerlanc-in-press.pdf).
+Confidence Intervals on Effect Sizes, is available. 
 
 ## Install
 
